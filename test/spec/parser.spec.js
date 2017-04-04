@@ -191,8 +191,13 @@ function deepEqualVariant(t, actual, expected) {
       }
     }
   }
-  if (actual.currentRenditions !== expected.currentRenditions) {
-    return t.fail(buildMessage('Variant.currentRenditions', actual.currentRenditions, expected.currentRenditions));
+  if (expected.currentRenditions) {
+    const actualCCs = actual.closedCaptions;
+    Object.entries(expected.currentRenditions).forEach(([key, value]) => {
+      if (actualCCs[key] !== value) {
+        return t.fail(buildMessage('Variant.currentRenditions', actualCCs[key], value));
+      }
+    });
   }
 }
 
