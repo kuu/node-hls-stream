@@ -19,7 +19,7 @@ function createSetssionDataList() {
   }));
   setssionDataList.push(new SessionData({
     id: 'com.example.title',
-    language: 'sp',
+    language: 'es',
     value: 'Este es un ejemplo'
   }));
   return setssionDataList;
