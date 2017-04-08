@@ -36,7 +36,7 @@ module.exports = function () {
       cb(0);
     })
     .on('data', segment => {
-      console.log(`#${segment.mediaSequenceNumber}: duration = ${segment.duration}, byte length = ${segment.data.length}`);
+      console.log(`#${segment.mediaSequenceNumber}: duration = ${segment.duration}, type = ${segment.mimeType}, byte length = ${segment.data.length}`);
     })
     .on('end', () => {
       resolve('Done');

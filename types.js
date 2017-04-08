@@ -102,10 +102,12 @@ class Key {
 class MediaInitializationSection {
   constructor({
     uri, // required
+    mimeType,
     byterange
   }) {
     utils.PARAMCHECK(uri);
     this.uri = uri;
+    this.mimeType = mimeType;
     this.byterange = byterange;
   }
 }
@@ -196,6 +198,7 @@ class MediaPlaylist extends Playlist {
 class Segment {
   constructor({
     uri, // required
+    mimeType,
     data,
     duration,
     title,
@@ -210,6 +213,7 @@ class Segment {
   }) {
     utils.PARAMCHECK(uri, mediaSequenceNumber, discontinuitySequence);
     this.uri = uri;
+    this.mimeType = mimeType;
     this.data = data;
     this.duration = duration;
     this.title = title;

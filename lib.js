@@ -146,17 +146,17 @@ class ReadStream extends stream.Readable {
 
   _loadPlaylist(url) {
     this._INCREMENT();
-    this.loader.load(url, {noCache: true}, (err, data) => {
+    this.loader.load(url, {noCache: true}, (err, result) => {
       this._DECREMENT();
       if (err) {
         return this._emit('error', err);
       }
-      const hash = digest(data);
+      const hash = digest(result.data);
       if (this._deferIfUnchanged(url, hash)) {
         // The file is not changed
         return;
       }
-      const playlist = this.parser.parse(data, url);
+      const playlist = this.parser.parse(result.data, url);
       this._emit('playlist', playlist);
       if (playlist.isMasterPlaylist) {
         // Master Playlist
@@ -173,12 +173,13 @@ class ReadStream extends stream.Readable {
 
   _loadSegment(segment) {
     this._INCREMENT();
-    this.loader.load(segment.uri.href, {readAsBuffer: true}, (err, data) => {
+    this.loader.load(segment.uri.href, {readAsBuffer: true}, (err, result) => {
       this._DECREMENT();
       if (err) {
         return this._emit('error', err);
       }
-      segment.data = data;
+      segment.data = result.data;
+      segment.mimeType = result.mimeType;
       this._emit('data', segment);
     });
   }
