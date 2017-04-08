@@ -34,7 +34,7 @@ function createRendition() {
 
 const playlist = new MasterPlaylist({
   uri: new URL('http://node-hls-stream.com/8.6-Master-Playlist-with-Alternative-audio.m3u8'),
-  variants: createVariants(),
+  variants: createVariants()
 });
 
 function createVariants() {
@@ -43,25 +43,29 @@ function createVariants() {
     uri: new URL('http://node-hls-stream.com/low/video-only.m3u8'),
     bandwidth: 1280000,
     codecs: 'mp4a.40.2',
-    audio: renditions
+    audio: renditions,
+    currentRenditions: {'AUDIO': 0}
   }));
   variants.push(new Variant({
     uri: new URL('http://node-hls-stream.com/mid/video-only.m3u8'),
     bandwidth: 2560000,
     codecs: 'mp4a.40.2',
-    audio: renditions
+    audio: renditions,
+    currentRenditions: {'AUDIO': 0}
   }));
   variants.push(new Variant({
     uri: new URL('http://node-hls-stream.com/hi/video-only.m3u8'),
     bandwidth: 7680000,
     codecs: 'mp4a.40.2',
-    audio: renditions
+    audio: renditions,
+    currentRenditions: {'AUDIO': 0}
   }));
   variants.push(new Variant({
     uri: new URL('http://node-hls-stream.com/main/english-audio.m3u8'),
     bandwidth: 65000,
     codecs: 'mp4a.40.5',
-    audio: renditions
+    audio: renditions,
+    currentRenditions: {'AUDIO': 0}
   }));
   return variants;
 }

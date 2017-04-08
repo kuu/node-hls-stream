@@ -140,6 +140,24 @@ function splitByCommaWithPreservingQuotes(str) {
   return list;
 }
 
+function camelify(str) {
+  const array = [];
+  let nextUpper = false;
+  for (const ch of str) {
+    if (ch === '-' || ch === '_') {
+      nextUpper = true;
+      continue;
+    }
+    if (nextUpper) {
+      array.push(ch.toUpperCase());
+      nextUpper = false;
+      continue;
+    }
+    array.push(ch.toLowerCase());
+  }
+  return array.join('');
+}
+
 module.exports = {
   THROW,
   ASSERT: process.env.NODE_ENV === 'production' ? _empty : ASSERT,
@@ -151,5 +169,6 @@ module.exports = {
   tryCatch,
   splitAt,
   trim,
-  splitByCommaWithPreservingQuotes
+  splitByCommaWithPreservingQuotes,
+  camelify
 };

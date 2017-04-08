@@ -197,6 +197,15 @@ function parseRendition(line) {
   return rendition;
 }
 
+function addRendition(variant, line, type) {
+  const rendition = parseRendition(line);
+  const renditions = variant[utils.camelify(type)];
+  renditions.push(rendition);
+  if (rendition.isDefault) {
+    variant.currentRenditions[type] = renditions.length - 1;
+  }
+}
+
 function parseVariant(lines, variantAttrs, uri, iFrameOnly = false) {
   const variant = new Variant({
     uri,
@@ -212,16 +221,16 @@ function parseVariant(lines, variantAttrs, uri, iFrameOnly = false) {
       const renditionAttrs = line.attributes;
       if (variantAttrs['AUDIO'] === renditionAttrs['GROUP-ID'] &&
         renditionAttrs['TYPE'] === 'AUDIO') {
-        variant.audio.push(parseRendition(line));
+        addRendition(variant, line, 'AUDIO');
       } else if (variantAttrs['VIDEO'] === renditionAttrs['GROUP-ID'] &&
         renditionAttrs['TYPE'] === 'VIDEO') {
-        variant.video.push(parseRendition(line));
+        addRendition(variant, line, 'VIDEO');
       } else if (variantAttrs['SUBTITLES'] === renditionAttrs['GROUP-ID'] &&
         renditionAttrs['TYPE'] === 'SUBTITLES') {
-        variant.subtitles.push(parseRendition(line));
+        addRendition(variant, line, 'SUBTITLES');
       } else if (variantAttrs['CLOSED-CAPTIONS'] === renditionAttrs['GROUP-ID'] &&
         renditionAttrs['TYPE'] === 'CLOSED-CAPTIONS') {
-        variant.closedCaptions.push(parseRendition(line));
+        addRendition(variant, line, 'CLOSED-CAPTIONS');
       }
     }
   }

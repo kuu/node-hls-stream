@@ -18,8 +18,8 @@
 #EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS="avc1.640029,mp4a.40.2",VIDEO="low"
 low/main/audio-video.m3u8
 
-#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="mid",NAME="Main",DEFAULT=YES,URI="mid/main/audio-video.m3u8"
-#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="mid",NAME="Centerfield",DEFAULT=NO,URI="mid/centerfield/audio-video.m3u8"
+#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="mid",NAME="Main",DEFAULT=NO,URI="mid/main/audio-video.m3u8"
+#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="mid",NAME="Centerfield",DEFAULT=YES,URI="mid/centerfield/audio-video.m3u8"
 #EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="mid",NAME="Dugout",DEFAULT=NO,URI="mid/dugout/audio-video.m3u8"
 
 #EXT-X-STREAM-INF:BANDWIDTH=2560000,CODECS="avc1.640029,mp4a.40.2",VIDEO="mid"

@@ -8,13 +8,14 @@ function createRendition(groupId) {
     uri: new URL(`http://node-hls-stream.com/${groupId}/main/audio-video.m3u8`),
     groupId,
     name: 'Main',
-    isDefault: true
+    isDefault: groupId === 'mid' ? false : true
   }));
   renditions.push(new Rendition({
     type: 'VIDEO',
     uri: new URL(`http://node-hls-stream.com/${groupId}/centerfield/audio-video.m3u8`),
     groupId,
-    name: 'Centerfield'
+    name: 'Centerfield',
+    isDefault: groupId === 'mid' ? true : false
   }));
   renditions.push(new Rendition({
     type: 'VIDEO',
@@ -36,13 +37,15 @@ function createVariants() {
     uri: new URL('http://node-hls-stream.com/low/main/audio-video.m3u8'),
     bandwidth: 1280000,
     codecs: 'avc1.640029,mp4a.40.2',
-    video: createRendition('low')
+    video: createRendition('low'),
+    currentRenditions: {'VIDEO': 0}
   }));
   variants.push(new Variant({
     uri: new URL('http://node-hls-stream.com/mid/main/audio-video.m3u8'),
     bandwidth: 2560000,
     codecs: 'avc1.640029,mp4a.40.2',
-    video: createRendition('mid')
+    video: createRendition('mid'),
+    currentRenditions: {'VIDEO': 1}
   }));
   variants.push(new Variant({
     uri: new URL('http://node-hls-stream.com/hi/main/audio-video.m3u8'),
