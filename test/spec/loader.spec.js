@@ -22,20 +22,21 @@ test.cb('load', t => {
 
   loader.load('http://xxx.com', (err, data) => {
     t.falsy(err);
-    t.is(data, '0');
+    t.is(data.data, '0');
+    loader.load('http://xxx.com', (err, data) => {
+      t.falsy(err);
+      t.is(data.data, '0'); // From cache
+    });
   });
   loader.load('http://yyy.com', (err, data) => {
     t.falsy(err);
-    t.is(data, '1');
+    t.is(data.data, '1');
   });
-  loader.load('http://xxx.com', (err, data) => {
-    t.falsy(err);
-    t.is(data, '0'); // From cache
-  });
+
   loader.load('http://zzz.com', {readAsBuffer: true}, (err, data) => {
     t.falsy(err);
-    t.true(Buffer.isBuffer(data));
-    t.is(data[0], 2);
+    t.true(Buffer.isBuffer(data.data));
+    t.is(data.data[0], 2);
   });
   loader.load('http://err.com', err => {
     t.truthy(err);

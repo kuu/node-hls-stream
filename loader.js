@@ -19,9 +19,13 @@ class Loader {
           utils.THROW(new Error(`${res.status} ${res.statusText}`));
         }
         if (options.readAsBuffer) {
-          return res.buffer();
+          return res.buffer().then(data => {
+            return {data, mimeType: res.headers ? res.headers.get('Content-Type') : null};
+          });
         }
-        return res.text();
+        return res.text().then(data => {
+          return {data};
+        });
       })
       .then(data => {
         this.cache.append(url, data);
@@ -44,10 +48,10 @@ class Loader {
     utils.ASSERT('Loader.load: cb is not a function', typeof cb === 'function');
 
     if (!options.noCache) {
-      const cache = this.cache.get(url);
-      if (cache) {
+      const data = this.cache.get(url);
+      if (data) {
         return process.nextTick(() => {
-          cb(null, cache.data);
+          cb(null, data);
         });
       }
     }

@@ -27,7 +27,11 @@ class Cache {
   }
 
   get(url) {
-    return this.map.get(url);
+    const entry = this.map.get(url);
+    if (entry) {
+      return entry.data;
+    }
+    return null;
   }
 
   clear() {

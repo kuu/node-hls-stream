@@ -17,7 +17,16 @@ const mock = {
       status: 200,
       statusText: 'OK',
       text: mock.text,
-      buffer: mock.buffer
+      buffer: mock.buffer,
+      headers: {
+        get: h => {
+          const header = h.toLowerCase();
+          if (header === 'content-type') {
+            return 'video/MP2T';
+          }
+          return '';
+        }
+      }
     });
   },
 

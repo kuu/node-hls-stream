@@ -13,13 +13,13 @@ test('cache', t => {
   }
   for (let i = 0; i < 15; i++) {
     if (i >= 0 && i < 10) {
-      const c = cache.get(`http://xxx.com/buf${i}`);
-      t.truthy(c);
-      t.is(c.data, buf);
+      const data = cache.get(`http://xxx.com/buf${i}`);
+      t.truthy(data);
+      t.is(data, buf);
     } else if (i >= 10 && i < 15) {
-      const c = cache.get(`http://xxx.com/str${i - 10}`);
-      t.truthy(c);
-      t.is(c.data, str);
+      const data = cache.get(`http://xxx.com/str${i - 10}`);
+      t.truthy(data);
+      t.is(data, str);
     }
   }
   cache.append(`http://xxx.com/str5`, str);
@@ -27,13 +27,13 @@ test('cache', t => {
     if (i >= 0 && i < 2) {
       t.falsy(cache.get(`http://xxx.com/buf${i}`));
     } else if (i >= 2 && i < 10) {
-      const c = cache.get(`http://xxx.com/buf${i}`);
-      t.truthy(c);
-      t.is(c.data, buf);
+      const data = cache.get(`http://xxx.com/buf${i}`);
+      t.truthy(data);
+      t.is(data, buf);
     } else if (i >= 10 && i < 16) {
-      const c = cache.get(`http://xxx.com/str${i - 10}`);
-      t.truthy(c);
-      t.is(c.data, str);
+      const data = cache.get(`http://xxx.com/str${i - 10}`);
+      t.truthy(data);
+      t.is(data, str);
     }
   }
   cache.clear();
