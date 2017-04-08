@@ -116,3 +116,9 @@ test('utils.trim', t => {
 test('utils.splitWithPreservingQuotes', t => {
   t.deepEqual(utils.splitByCommaWithPreservingQuotes('abc=123, def="4,5,6", ghi=78=9, jkl="abc\'123\'def"'), ['abc=123', 'def="4,5,6"', 'ghi=78=9', 'jkl="abc\'123\'def"']);
 });
+
+test('utls.camelify', t => {
+  const props = ['caption', 'Caption', 'captioN', 'CAPTION', 'closed-captions', 'closed_captions', 'CLOSED-CAPTIONS'];
+  const results = ['caption', 'caption', 'caption', 'caption', 'closedCaptions', 'closedCaptions', 'closedCaptions'];
+  t.deepEqual(props.map(p => utils.camelify(p)), results);
+});
