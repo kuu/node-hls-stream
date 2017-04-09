@@ -102,14 +102,15 @@ class ReadStream extends stream.Readable {
   }
 
   _updateMediaPlaylist(playlist) {
-    const oldPlaylists = this.mediaPlaylists;
-    const oldPlaylistIndex = oldPlaylists.findIndex(elem => {
+    const mediaPlaylists = this.mediaPlaylists;
+    const oldPlaylistIndex = mediaPlaylists.findIndex(elem => {
       if (elem.uri.href === playlist.uri.href) {
         return true;
       }
       return false;
     });
-    const oldPlaylist = oldPlaylistIndex === -1 ? null : oldPlaylists[oldPlaylistIndex];
+
+    const oldPlaylist = oldPlaylistIndex === -1 ? null : mediaPlaylists[oldPlaylistIndex];
     const newSegments = playlist.segments;
     for (const segment of newSegments) {
       if (oldPlaylist) {
@@ -121,6 +122,8 @@ class ReadStream extends stream.Readable {
         });
         if (oldSegment) {
           segment.data = oldSegment.data;
+          segment.key = oldSegment.key;
+          segment.map = oldSegment.map;
         } else {
           this._loadSegment(segment);
         }
@@ -128,10 +131,11 @@ class ReadStream extends stream.Readable {
         this._loadSegment(segment);
       }
     }
+
     if (oldPlaylist) {
-      oldPlaylists[oldPlaylistIndex] = playlist;
+      mediaPlaylists[oldPlaylistIndex] = playlist;
     } else {
-      this.mediaPlaylists.push(playlist);
+      mediaPlaylists.push(playlist);
     }
 
     if (playlist.playlistType === 'VOD' || playlist.endlist) {
@@ -142,6 +146,21 @@ class ReadStream extends stream.Readable {
         this._loadPlaylist(playlist.uri.href);
       }, playlist.targetDuration * 1000);
     }
+  }
+
+  _emitPlaylistEvent(playlist) {
+    if (!playlist.isMasterPlaylist) {
+      return this._emit('playlist', playlist);
+    }
+    for (const sessionData of playlist.sessionDataList) {
+      if (!sessionData.value && !sessionData.data) {
+        return;
+      }
+    }
+    if (playlist.sessionKey && !playlist.sessionKey.data) {
+      return;
+    }
+    this._emit('playlist', playlist);
   }
 
   _loadPlaylist(url) {
@@ -161,14 +180,39 @@ class ReadStream extends stream.Readable {
       if (playlist.isMasterPlaylist) {
         // Master Playlist
         this.state = STATE_MASTER_PLAYLIST_PARSED;
+        this._emitPlaylistEvent(playlist);
+        if (playlist.sessionDataList.length > 0) {
+          this._loadSessionData(playlist.sessionDataList, () => {
+            this._emitPlaylistEvent(playlist);
+          });
+        }
+        if (playlist.sessionKey) {
+          this._loadKey(playlist.sessionKey, () => {
+            this._emitPlaylistEvent(playlist);
+          });
+        }
         this._updateMasterPlaylist(playlist);
       } else {
         // Media Playlist
         this.state = STATE_MEDIA_PLAYLIST_PARSED;
         playlist.hash = hash;
+        this._emitPlaylistEvent(playlist);
         this._updateMediaPlaylist(playlist);
       }
     });
+  }
+
+  _emitDataEvent(segment) {
+    if (!segment.data) {
+      return;
+    }
+    if (segment.key && !segment.key.data) {
+      return;
+    }
+    if (segment.map && !segment.map.data) {
+      return;
+    }
+    this._emit('data', segment);
   }
 
   _loadSegment(segment) {
@@ -180,7 +224,66 @@ class ReadStream extends stream.Readable {
       }
       segment.data = result.data;
       segment.mimeType = result.mimeType;
-      this._emit('data', segment);
+      this._emitDataEvent(segment);
+    });
+    if (segment.key) {
+      this._loadKey(segment.key, () => {
+        this._emitDataEvent(segment);
+      });
+    }
+    if (segment.map) {
+      this._loadMap(segment.map, () => {
+        this._emitDataEvent(segment);
+      });
+    }
+  }
+
+  _loadSessionData(list, cb) {
+    for (const sessionData of list) {
+      if (sessionData.value || !sessionData.url) {
+        continue;
+      }
+      this._INCREMENT();
+      this.loader.load(sessionData.uri.href, (err, result) => {
+        this._DECREMENT();
+        if (err) {
+          return this._emit('error', err);
+        }
+        sessionData.data = utils.tryCatch(
+          () => {
+            return JSON.parse(result.data);
+          },
+          err => {
+            print(`The session data MUST be formatted as JSON. ${err.stack}`);
+          }
+        );
+        cb();
+      });
+    }
+  }
+
+  _loadKey(key, cb) {
+    this._INCREMENT();
+    this.loader.load(key.uri.href, {readAsBuffer: true}, (err, result) => {
+      this._DECREMENT();
+      if (err) {
+        return this._emit('error', err);
+      }
+      key.data = result.data;
+      cb();
+    });
+  }
+
+  _loadMap(map, cb) {
+    this._INCREMENT();
+    this.loader.load(map.uri.href, {readAsBuffer: true}, (err, result) => {
+      this._DECREMENT();
+      if (err) {
+        return this._emit('error', err);
+      }
+      map.data = result.data;
+      map.mimeType = result.mimeType;
+      cb();
     });
   }
 

@@ -160,6 +160,7 @@ As the readable stream returned by `createReadStream` is in object mode, all the
 | `id`  | string   | Yes       | N/A | See DATA-ID attribute in [EXT-X-SESSION-DATA](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.4.4) |
 | `value`  | string   | No       | undefined | See VALUE attribute in [EXT-X-SESSION-DATA](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.4.4) |
 | `uri`        | `URL` (WHATWG)  | No       | undefined        | See URI attribute in [EXT-X-SESSION-DATA](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.4.4)  |
+| `data`        | object | No       | undefined        | If `uri` is specified, the downloaded JSON data  |
 | `language`  | string   | No       | undefined | See LANGUAGE attribute in [EXT-X-SESSION-DATA](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.4.4) |
 
 ### `MediaPlaylist` (extends `Playlist`)
@@ -178,7 +179,7 @@ As the readable stream returned by `createReadStream` is in object mode, all the
 | ----------------- | -------- | -------- | --------- | ------------- |
 | `uri`        | `URL` (WHATWG)  | Yes       | N/A        | URI of the media segment |
 | `mimeType`        | string  | No       | undefined        | MIME type of the media segment |
-| `data`        | `Buffer`(length=16)   | No       | undefined        | downloaded data for the `uri` |
+| `data`        | `Buffer`   | No       | undefined        | downloaded data for the `uri` (the data is trimmed based on the `byterange`) |
 | `duration`  | number   | Yes       | N/A | See [EXTINF](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.2.1) |
 | `title`  | string   | No       | undefined | See [EXTINF](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.2.1) |
 | `byterange`  | object ({length: number, offset: number})   | No       | undefined | See [EXT-X-BYTERANGE](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.2.2) |
@@ -195,6 +196,7 @@ As the readable stream returned by `createReadStream` is in object mode, all the
 | ----------------- | -------- | -------- | --------- | ------------- |
 | `method`  | string   | Yes       | N/A | See METHOD attribute in [EXT-X-KEY](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.2.4) |
 | `uri`        | `URL` (WHATWG)  | No       | undefined        | See URI attribute in [EXT-X-KEY](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.2.4) |
+| `data`        | `Buffer`(length=16) | No       | undefined        | If `uri` is specified, the downloaded key  |
 | `iv`        | `Buffer`(length=16)   | No       | undefined        | See IV attribute in [EXT-X-KEY](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.2.4) |
 | `format`  | string   | No       | undefined | See KEYFORMAT attribute in [EXT-X-KEY](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.2.4) |
 | `formatVersion`  | string   | No       | undefined | See KEYFORMATVERSIONS attribute in [EXT-X-KEY](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.2.4) |
@@ -205,6 +207,7 @@ As the readable stream returned by `createReadStream` is in object mode, all the
 | `uri`        | `URL` (WHATWG)  | Yes       | N/A        | See URI attribute in [EXT-X-MAP](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.2.5) |
 | `mimeType`        | string  | No       | undefined        | MIME type of the media initialization section |
 | `byterange`        | object ({length: number, offset: number})   | No       | undefined        | See BYTERANGE attribute in [EXT-X-MAP](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.2.5) |
+| `data`        | `Buffer` | No       | undefined        | The downloaded media initialization section (the data is trimmed based on the `byterange`)  |
 
 ### `DateRange`
 | Property          | Type     | Required | Default   | Description   |
