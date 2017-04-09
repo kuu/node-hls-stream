@@ -19,6 +19,15 @@ function digest(str) {
   return md5.digest('hex');
 }
 
+function trimData(data, byterange) {
+  if (byterange) {
+    const offset = byterange.offset || 0;
+    const length = byterange.length || data.length - offset;
+    return data.slice(offset, offset + length);
+  }
+  return data;
+}
+
 class ReadStream extends stream.Readable {
   constructor(url, options) {
     super({objectMode: true});
@@ -222,7 +231,7 @@ class ReadStream extends stream.Readable {
       if (err) {
         return this._emit('error', err);
       }
-      segment.data = result.data;
+      segment.data = trimData(result.data, segment.byterange);
       segment.mimeType = result.mimeType;
       this._emitDataEvent(segment);
     });
@@ -281,7 +290,7 @@ class ReadStream extends stream.Readable {
       if (err) {
         return this._emit('error', err);
       }
-      map.data = result.data;
+      map.data = trimData(result.data, map.byterange);
       map.mimeType = result.mimeType;
       cb();
     });
