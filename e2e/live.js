@@ -34,7 +34,7 @@ module.exports = function () {
       cb(0);
     })
     .on('data', function onData(segment) {
-      console.log(`#${segment.mediaSequenceNumber}: duration = ${segment.duration}, type = ${segment.mimeType}, byte length = ${segment.data.length}`);
+      console.log(`#${segment.mediaSequenceNumber}: duration = ${segment.duration}, type = ${segment.mimeType}, byte length = ${segment.data.length}, key = ${segment.key}`);
       if (counter++ === 12) {
         stream.removeListener('data', onData);
         stream.pause();

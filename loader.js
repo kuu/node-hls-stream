@@ -32,7 +32,7 @@ class Loader {
         this.stream.push({url, data});
         cb();
       }).catch(err => {
-        print(`Error: ${err.message}`);
+        print(`Error: ${err.stack}`);
         setImmediate(() => this.stream.emit('error', {url, err}));
         cb();
       });
@@ -73,7 +73,7 @@ class Loader {
     })
     .on('error', function onError(result) {
       if (result.url === url) {
-        stream.removeListener('errir', onError);
+        stream.removeListener('error', onError);
         waitlist.delete(url);
         cb(result.err);
       }
