@@ -142,7 +142,8 @@ class Playlist {
     uri, // required
     version,
     independentSegments = false,
-    offset = 0.0
+    offset = 0.0,
+    source
   }) {
     utils.PARAMCHECK(isMasterPlaylist, uri);
     this.isMasterPlaylist = isMasterPlaylist;
@@ -150,6 +151,7 @@ class Playlist {
     this.version = version;
     this.independentSegments = independentSegments;
     this.offset = offset;
+    this.source = source;
   }
 }
 

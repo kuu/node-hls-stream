@@ -185,7 +185,7 @@ class ReadStream extends stream.Readable {
         return;
       }
       const playlist = this.parser.parse(result.data, url);
-      this._emit('playlist', playlist);
+      playlist.source = result.data;
       if (playlist.isMasterPlaylist) {
         // Master Playlist
         this.state = STATE_MASTER_PLAYLIST_PARSED;

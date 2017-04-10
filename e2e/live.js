@@ -6,6 +6,7 @@ module.exports = function () {
     let counter = 0;
 
     stream.on('playlist', playlist => {
+      console.log('===');
       if (playlist.isMasterPlaylist) {
         console.log(`Master playlist available`);
       } else {
@@ -14,6 +15,9 @@ module.exports = function () {
         console.log(`\ttype = ${playlist.playlistType}`);
         console.log(`\tendlist = ${playlist.endlist}`);
       }
+      console.log('---');
+      console.log(playlist.source);
+      console.log('===');
     })
     .on('variants', (variants, cb) => {
       // Choose an appropriate variant
