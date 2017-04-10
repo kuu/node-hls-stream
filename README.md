@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/kuu/node-hls-stream.svg?branch=master)](https://travis-ci.org/kuu/node-hls-stream)
+[![Coverage Status](https://coveralls.io/repos/kuu/node-hls-stream/badge.png?branch=master)](https://coveralls.io/r/kuu/node-hls-stream?branch=master)
+[![Dependency Status](https://gemnasium.com/badges/github.com/kuu/node-hls-stream.svg)](https://gemnasium.com/github.com/kuu/node-hls-stream)
+
 # node-hls-stream
 
 A readable stream that can be used for extracting a particular variant/rendition from a live/VOD HLS stream
