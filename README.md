@@ -112,6 +112,7 @@ As the readable stream returned by `createReadStream` is in object mode, all the
 | `version`          | object | No       | undefined      | See [EXT-X-VERSION](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.1.2) |
 | `independentSegments` | boolean | No       | false      | See [EXT-X-INDEPENDENT-SEGMENTS](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.5.1) |
 | `offset` | object | No       | 0.0      | See [EXT-X-START](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.5.2) |
+| `source` | string     | No      | undefined     | The unprocessed text of the playlist  |
 
 ### `MasterPlaylist` (extends `Playlist`)
 | Property          | Type     | Required | Default   | Description   |
