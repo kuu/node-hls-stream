@@ -159,7 +159,7 @@ class ReadStream extends stream.Readable {
 
   _emitPlaylistEvent(playlist) {
     if (!playlist.isMasterPlaylist) {
-      return this._emit('playlist', playlist);
+      return this._emit('data', playlist);
     }
     for (const sessionData of playlist.sessionDataList) {
       if (!sessionData.value && !sessionData.data) {
@@ -169,7 +169,7 @@ class ReadStream extends stream.Readable {
     if (playlist.sessionKey && !playlist.sessionKey.data) {
       return;
     }
-    this._emit('playlist', playlist);
+    this._emit('data', playlist);
   }
 
   _loadPlaylist(url) {

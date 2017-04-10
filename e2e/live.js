@@ -5,21 +5,7 @@ module.exports = function () {
     const stream = new ReadStream('https://nhkworld.webcdn.stream.ne.jp/www11/nhkworld-tv/domestic/263942/live_wa_s.m3u8', {concurrency: 7});
     let counter = 0;
 
-    stream.on('playlist', playlist => {
-      console.log('===');
-      if (playlist.isMasterPlaylist) {
-        console.log(`Master playlist available`);
-      } else {
-        console.log(`Media playlist available:`);
-        console.log(`\tisIFrame = ${playlist.isIFrame}`);
-        console.log(`\ttype = ${playlist.playlistType}`);
-        console.log(`\tendlist = ${playlist.endlist}`);
-      }
-      console.log('---');
-      console.log(playlist.source);
-      console.log('===');
-    })
-    .on('variants', (variants, cb) => {
+    stream.on('variants', (variants, cb) => {
       // Choose an appropriate variant
       console.log(`${variants.length} variants available:`);
       for (const [index, variant] of variants.entries()) {
@@ -37,17 +23,34 @@ module.exports = function () {
       // If there's no default rendition, the first (index=0) rendition will be used.
       cb(0);
     })
-    .on('data', function onData(segment) {
-      console.log(`#${segment.mediaSequenceNumber}: duration = ${segment.duration}, type = ${segment.mimeType}, byte length = ${segment.data.length}, key = ${segment.key}`);
-      if (counter++ === 12) {
-        stream.removeListener('data', onData);
-        stream.pause();
-        console.log('\t!!!stream.pause()');
-        setTimeout(() => {
-          stream.on('data', onData);
-          stream.resume();
-          console.log('\t!!!stream.resume()');
-        }, 20000);
+    .on('data', function onData(data) {
+      if (data.type === 'playlist') {
+        const playlist = data;
+        console.log('===');
+        if (playlist.isMasterPlaylist) {
+          console.log(`Master playlist available`);
+        } else {
+          console.log(`Media playlist available:`);
+          console.log(`\tisIFrame = ${playlist.isIFrame}`);
+          console.log(`\ttype = ${playlist.playlistType}`);
+          console.log(`\tendlist = ${playlist.endlist}`);
+        }
+        console.log('---');
+        console.log(playlist.source);
+        console.log('===');
+      } else if (data.type === 'segment') {
+        const segment = data;
+        console.log(`#${segment.mediaSequenceNumber}: duration = ${segment.duration}, type = ${segment.mimeType}, byte length = ${segment.data.length}, key = ${segment.key}`);
+        if (counter++ === 12) {
+          stream.removeListener('data', onData);
+          stream.pause();
+          console.log('\t!!!stream.pause()');
+          setTimeout(() => {
+            stream.on('data', onData);
+            stream.resume();
+            console.log('\t!!!stream.resume()');
+          }, 20000);
+        }
       }
     })
     .on('end', () => {
