@@ -8,7 +8,9 @@ const parser = new Parser();
 fixtures.forEach(({name, data, expected}) => {
   test(name, t => {
     const result = parser.parse(data, `http://node-hls-stream.com/${name}.m3u8`);
-    deepEqual(t, result, expected);
+    if (deepEqual(t, result, expected)) {
+      t.pass();
+    }
   });
 });
 
@@ -116,6 +118,7 @@ function deepEqual(t, actual, expected) {
       return t.fail(buildMessage('MediaPlaylist.hash', actual.hash, expected.hash));
     }
   }
+  return true;
 }
 
 function deepEqualVariant(t, actual, expected) {

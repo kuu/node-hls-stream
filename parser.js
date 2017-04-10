@@ -419,10 +419,8 @@ class FileParser {
       if (this.isMasterPlaylist === false) {
         MIXEDTAGS();
       }
-      return;
     }
     // category === 'Basic' or 'MediaorMasterPlaylist' or 'Unknown'
-    return;
   }
 
   parseTag(line) {

@@ -32,21 +32,23 @@
     "esnext": true,
     "space": true,
     "rules": {
+      "capitalized-comments": 0,
       "dot-notation": 0,
       "new-cap": 0,
       "no-cond-assign": 0,
+      "no-multi-assign": 0,
       "import/no-dynamic-require": 0
     }
   },
   "devDependencies": {
-    "ava": "^0.18.2",
+    "ava": "^0.19.1",
     "coveralls": "^2.13.0",
     "minimist": "^1.2.0",
     "nsp": "^2.6.3",
     "nyc": "^10.2.0",
     "proxyquire": "^1.7.11",
     "sinon": "^2.1.0",
-    "xo": "^0.17.1"
+    "xo": "^0.18.1"
   },
   "dependencies": {
     "debug": "^2.6.3",

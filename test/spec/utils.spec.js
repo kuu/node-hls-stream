@@ -23,7 +23,7 @@ test('utils.ASSERT', t => {
 test('utils.PARAMCHECK', t => {
   utils.PARAMCHECK(1, 2, 3);
   try {
-    utils.PARAMCHECK(1, 2, false);
+    utils.PARAMCHECK(1, 2, undefined);
   } catch (err) {
     t.truthy(err);
     t.is(err.message, 'Param Check : Failed at [2]');
@@ -32,9 +32,9 @@ test('utils.PARAMCHECK', t => {
 
 test('utils.CONDITIONALPARAMCHECK', t => {
   utils.CONDITIONALPARAMCHECK([true, 1], [true, 2], [true, 3]);
-  utils.CONDITIONALPARAMCHECK([false, 0], [false, 1], [false, 2]);
+  utils.CONDITIONALPARAMCHECK([false, undefined], [false, 1], [false, 2]);
   try {
-    utils.CONDITIONALPARAMCHECK([false, 0], [true, 1], [true, 0]);
+    utils.CONDITIONALPARAMCHECK([false, undefined], [true, 1], [true, undefined]);
   } catch (err) {
     t.truthy(err);
     t.is(err.message, 'Conditional Param Check : Failed at [2]');
