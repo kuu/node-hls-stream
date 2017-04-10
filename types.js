@@ -136,7 +136,14 @@ class DateRange {
   }
 }
 
-class Playlist {
+class Data {
+  constructor(type) {
+    utils.PARAMCHECK(type);
+    this.type = type;
+  }
+}
+
+class Playlist extends Data {
   constructor({
     isMasterPlaylist, // required
     uri, // required
@@ -145,6 +152,7 @@ class Playlist {
     offset = 0.0,
     source
   }) {
+    super('playlist');
     utils.PARAMCHECK(isMasterPlaylist, uri);
     this.isMasterPlaylist = isMasterPlaylist;
     this.uri = uri;
@@ -197,7 +205,7 @@ class MediaPlaylist extends Playlist {
   }
 }
 
-class Segment {
+class Segment extends Data {
   constructor({
     uri, // required
     mimeType,
@@ -213,6 +221,7 @@ class Segment {
     programDateTime,
     dateRange
   }) {
+    super('segment');
     utils.PARAMCHECK(uri, mediaSequenceNumber, discontinuitySequence);
     this.uri = uri;
     this.mimeType = mimeType;

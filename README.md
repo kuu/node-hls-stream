@@ -33,9 +33,19 @@ stream.on('variants', (variants, cb) => {
   // If not specified, the default rendition will be used.
   // If there's no default rendition, the first (index=0) rendition will be used.
 })
-.on('data', segment => {
+.on('data', data => {
   // The stream chosen above will be delivered here
-  console.log(`#${segment.mediaSequenceNumber}: duration = ${segment.duration}, byte length = ${segment.data.length}`);
+  if (data.type === 'playlist') {
+    const playlist = data;
+    if (playlist.isMasterPlaylist) {
+      console.log(`Master playlist`);
+    } else {
+      console.log(`Media playlist`);
+    }
+  } else if (data.type === 'segment') {
+    const segment = data;
+    console.log(`#${segment.mediaSequenceNumber}: duration = ${segment.duration}, byte length = ${segment.data.length}`);
+  }
 })
 .on('end', () => {
   // For VOD streams, the stream ends after all data is consumed.
@@ -69,12 +79,6 @@ An instance of `ReadStream`.
 ### `ReadStream`
 A subclass of [stream.Readable](https://nodejs.org/api/stream.html#stream_readable_streams) with additional events and methods as follows.
 #### events
-##### `'playlist'`
-`playlist` event is emitted when a playlist is available. The event listener is called with the following arguments:
-
-| Name     | Type   | Description                                       |
-| -------- | ------ | ------------------------------------------------- |
-| playlist | `Playlist` | An instance of `MediaPlaylist` or `MasterPlaylist` |
 ##### `'variants'`
 `variants` event is emitted to let clients specify which variant to be downloaded. The event listener is called with the following arguments:
 
@@ -90,11 +94,11 @@ A subclass of [stream.Readable](https://nodejs.org/api/stream.html#stream_readab
 | renditions | [`Rendition`]    | A list of available renditions              |
 | cb         | `function` | A callback function to be called by the client to specify the rendition's index within the array.  |
 ##### `'data'`
-`data` event is emitted when a segment is available. The event listener is called with the following arguments:
+`data` event is emitted when a playlist or segment is available. The event listener is called with the following arguments:
 
 | Name    | Type      | Description              |
 | ------- | --------- | ------------------------ |
-| segment | `Segment` | An instance of `Segment` |
+| segment | `Segment` | An instance of `Segment` or `Playlist` |
 #### methods
 ##### `updateVariant()`
 Emits `variants`/`renditions` events again so that the client can choose another variant/rendition.The method takes no params and returns no value.
@@ -102,9 +106,14 @@ Emits `variants`/`renditions` events again so that the client can choose another
 ## Data format
 As the readable stream returned by `createReadStream` is in object mode, all the data is represented in standard JS objects. This section describes the structure of the objects.
 
-![data structure](./data-structure.jpg)
+![data structure](./data-structure.png)
 
-### `Playlist`
+### `Data`
+| Property         | Type          | Required | Default | Description   |
+| ---------------- | ------------- | -------- | ------- | ------------- |
+| `type` | string     | Yes      | N/A     | {`playlist`, `segment`}  |
+
+### `Playlist` (extends `Data`)
 | Property         | Type          | Required | Default | Description   |
 | ---------------- | ------------- | -------- | ------- | ------------- |
 | `isMasterPlaylist` | boolean     | Yes      | N/A     | `true` if this playlist is a master playlist  |
@@ -175,7 +184,7 @@ As the readable stream returned by `createReadStream` is in object mode, all the
 | `isIFrame`                  | boolean | No       | undefined        | See [EXT-X-I-FRAMES-ONLY](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21#section-4.3.3.6) |
 | `segments`                  | [`Segment`] | No       | []        | A list of available segments |
 
-### `Segment`
+### `Segment` (extends `Data`)
 | Property          | Type     | Required | Default   | Description   |
 | ----------------- | -------- | -------- | --------- | ------------- |
 | `uri`        | `URL` (WHATWG)  | Yes       | N/A        | URI of the media segment |
