@@ -11,7 +11,7 @@ A readable stream that can be used for extracting a particular variant/rendition
 
 ```js
 const {createReadStream} = require('node-hls-stream');
-// Create a readable stream from URL
+// Create a readable stream from a URL
 const stream = createReadStream('https://foo.com/bar.m3u8', {concurrency: 7});
 
 stream.on('variants', (variants, cb) => {
@@ -98,20 +98,20 @@ A subclass of [stream.Readable](https://nodejs.org/api/stream.html#stream_readab
 
 | Name    | Type      | Description              |
 | ------- | --------- | ------------------------ |
-| segment | `Segment` | An instance of `Segment` or `Playlist` |
+| data | `Data` | An instance of either of `Segment`, `MasterPlaylist` or `MediaPlaylist` (See **Data format** below) |
 #### methods
 ##### `updateVariant()`
-Emits `variants`/`renditions` events again so that the client can choose another variant/rendition.The method takes no params and returns no value.
+Emits `variants`/`renditions` events again so that the client can choose another variant/rendition. The method takes no params and returns no value.
 
 ## Data format
-As the readable stream returned by `createReadStream` is in object mode, all the data is represented in standard JS objects. This section describes the structure of the objects.
+As the readable stream returned by `createReadStream` operates in object mode, the data emitted by the stream is always a JS object. This section describes the structure of the object.
 
 ![data structure](./data-structure.png)
 
 ### `Data`
 | Property         | Type          | Required | Default | Description   |
 | ---------------- | ------------- | -------- | ------- | ------------- |
-| `type` | string     | Yes      | N/A     | {`playlist`, `segment`}  |
+| `type` | string     | Yes      | N/A     | Either `playlist` or `segment`}  |
 
 ### `Playlist` (extends `Data`)
 | Property         | Type          | Required | Default | Description   |

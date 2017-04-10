@@ -317,6 +317,10 @@ class ReadStream extends stream.Readable {
   }
 }
 
-module.exports = {ReadStream};
+function createReadStream(url, options) {
+  return new ReadStream(url, options);
+}
+
+module.exports = {createReadStream};
 // es2015 default export compatibility
 module.exports.default = module.exports;

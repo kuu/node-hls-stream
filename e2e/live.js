@@ -1,8 +1,8 @@
-const {ReadStream} = require('../lib');
+const {createReadStream} = require('../lib');
 
 module.exports = function () {
   return new Promise((resolve, reject) => {
-    const stream = new ReadStream('https://nhkworld.webcdn.stream.ne.jp/www11/nhkworld-tv/domestic/263942/live_wa_s.m3u8', {concurrency: 7});
+    const stream = createReadStream('https://nhkworld.webcdn.stream.ne.jp/www11/nhkworld-tv/domestic/263942/live_wa_s.m3u8', {concurrency: 7});
     let counter = 0;
 
     stream.on('variants', (variants, cb) => {
