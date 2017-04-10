@@ -1,7 +1,7 @@
 {
   "name": "node-hls-stream",
   "version": "0.0.1",
-  "description": "A readable stream that can be used for extracting a particular variant/rendition from an HLS stream",
+  "description": "A readable stream that can be used for extracting a particular variant/rendition from a live/VOD HLS stream",
   "main": "./lib.js",
   "scripts": {
     "lint": "xo",
