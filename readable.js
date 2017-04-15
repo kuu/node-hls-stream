@@ -1,8 +1,8 @@
 const stream = require('stream');
 const crypto = require('crypto');
 const debug = require('debug');
-const Loader = require('./loader');
-const Parser = require('./parser');
+const Loader = require('@kuu/parallel-fetch');
+const Parser = require('@kuu/hls-parser');
 const utils = require('./utils');
 
 const print = debug('hls-stream');
@@ -317,10 +317,4 @@ class ReadStream extends stream.Readable {
   }
 }
 
-function createReadStream(url, options) {
-  return new ReadStream(url, options);
-}
-
-module.exports = {createReadStream};
-// es2015 default export compatibility
-module.exports.default = module.exports;
+module.exports = ReadStream;

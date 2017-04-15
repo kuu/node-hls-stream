@@ -1,4 +1,4 @@
-const {createReadStream} = require('../lib');
+const {createReadStream} = require('../');
 
 module.exports = function () {
   return new Promise((resolve, reject) => {
