@@ -1,5 +1,7 @@
 language: node_js
 node_js:
   - "7"
+before_install:
+  - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
 after_success:
   "npm run coverage"
