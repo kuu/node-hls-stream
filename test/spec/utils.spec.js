@@ -41,28 +41,6 @@ test('utils.CONDITIONALPARAMCHECK', t => {
   }
 });
 
-test('utils.toNumber', t => {
-  t.is(utils.toNumber('123'), 123);
-  t.is(utils.toNumber(123), 123);
-  t.is(utils.toNumber('abc'), 0);
-  t.is(utils.toNumber('8bc'), 8);
-});
-
-test('utils.hexToByteSequence', t => {
-  t.deepEqual(utils.hexToByteSequence('0x000000'), Buffer.from([0, 0, 0]));
-  t.deepEqual(utils.hexToByteSequence('0xFFFFFF'), Buffer.from([255, 255, 255]));
-  t.deepEqual(utils.hexToByteSequence('FFFFFF'), Buffer.from([255, 255, 255]));
-});
-
-test('utils.createUrl', t => {
-  let url = utils.createUrl('http://abc.com');
-  t.is(url.href, 'http://abc.com/');
-  url = utils.createUrl('http://abc.com', 'http://def.com');
-  t.is(url.href, 'http://abc.com/');
-  url = utils.createUrl('/abc', 'http://def.com');
-  t.is(url.href, 'http://def.com/abc');
-});
-
 test('utils.tryCatch', t => {
   let result = utils.tryCatch(
     () => {
@@ -92,33 +70,4 @@ test('utils.tryCatch', t => {
       }
     );
   });
-});
-
-test('utils.splitAt', t => {
-  t.deepEqual(utils.splitAt('a=1', '='), ['a', '1']);
-  t.deepEqual(utils.splitAt('a=1=2', '='), ['a', '1=2']);
-  t.deepEqual(utils.splitAt('a=1=2=3', '='), ['a', '1=2=3']);
-  t.deepEqual(utils.splitAt('a=1=2=3', '=', 0), ['a', '1=2=3']);
-  t.deepEqual(utils.splitAt('a=1=2=3', '=', 1), ['a=1', '2=3']);
-  t.deepEqual(utils.splitAt('a=1=2=3', '=', 2), ['a=1=2', '3']);
-  t.deepEqual(utils.splitAt('a=1=2=3', '=', -1), ['a=1=2', '3']);
-});
-
-test('utils.trim', t => {
-  t.is(utils.trim(' abc '), 'abc');
-  t.is(utils.trim(' abc ', ' '), 'abc');
-  t.is(utils.trim('"abc"', '"'), 'abc');
-  t.is(utils.trim('abc:', ':'), 'abc');
-  t.is(utils.trim('abc'), 'abc');
-  t.is(utils.trim(' "abc" ', '"'), 'abc');
-});
-
-test('utils.splitWithPreservingQuotes', t => {
-  t.deepEqual(utils.splitByCommaWithPreservingQuotes('abc=123, def="4,5,6", ghi=78=9, jkl="abc\'123\'def"'), ['abc=123', 'def="4,5,6"', 'ghi=78=9', 'jkl="abc\'123\'def"']);
-});
-
-test('utls.camelify', t => {
-  const props = ['caption', 'Caption', 'captioN', 'CAPTION', 'closed-captions', 'closed_captions', 'CLOSED-CAPTIONS'];
-  const results = ['caption', 'caption', 'caption', 'caption', 'closedCaptions', 'closedCaptions', 'closedCaptions'];
-  t.deepEqual(props.map(p => utils.camelify(p)), results);
 });
