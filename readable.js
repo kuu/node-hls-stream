@@ -2,7 +2,7 @@ const stream = require('stream');
 const crypto = require('crypto');
 const debug = require('debug');
 const Loader = require('@kuu/parallel-fetch');
-const Parser = require('@kuu/hls-parser');
+const HLS = require('@kuu/hls-parser');
 const utils = require('./utils');
 
 const print = debug('hls-stream');
@@ -32,7 +32,6 @@ class ReadStream extends stream.Readable {
   constructor(url, options) {
     super({objectMode: true});
     this.loader = new Loader(options);
-    this.parser = new Parser(options);
     this.state = STATE_NO_PLAYLIST;
     this.url = url;
     this.masterPlaylist = null;
@@ -184,7 +183,7 @@ class ReadStream extends stream.Readable {
         // The file is not changed
         return;
       }
-      const playlist = this.parser.parse(result.data, url);
+      const playlist = HLS.parse(result.data, url);
       playlist.source = result.data;
       if (playlist.isMasterPlaylist) {
         // Master Playlist

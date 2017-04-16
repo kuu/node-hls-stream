@@ -18,7 +18,7 @@ A readable/writable stream that can be used for manipulating a live/VOD HLS stre
 
 
 ## Usage
-### Readable
+### Readable stream
 ```js
 const {createReadStream} = require('node-hls-stream');
 // Create a readable stream from a URL
@@ -27,7 +27,7 @@ const stream = createReadStream('https://foo.com/bar.m3u8', {concurrency: 7});
 stream.on('variants', (variants, cb) => {
   // Choose an appropriate variant
   for (let [index, variant] of variants.entries()) {
-    if (variant.bandwidth === TARGET_BITRATE) {
+    if (variant.bandwidth >= MIN_BITRATE) {
       return cb(index);
     }
   }
@@ -69,7 +69,7 @@ stream.on('variants', (variants, cb) => {
 // To switch to another stream:
 stream.updateVariant(); // 'variants' and 'renditions' events will be emitted again.
 ```
-### Writable
+### Writable stream
 ```js
 const {createWriteStream, types: {MediaPlaylist}} = require('node-hls-stream');
 // Create a writable stream from a filepath

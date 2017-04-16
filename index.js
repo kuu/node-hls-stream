@@ -1,4 +1,4 @@
-const Parser = require('@kuu/hls-parser');
+const HLS = require('@kuu/hls-parser');
 
 const ReadStream = require('./readable');
 const WriteStream = require('./writable');
@@ -11,6 +11,6 @@ function createWriteStream(filePath, options) {
   return new WriteStream(filePath, options);
 }
 
-module.exports = {createReadStream, createWriteStream, types: Parser.types};
+module.exports = {createReadStream, createWriteStream, types: HLS.types};
 // es2015 default export compatibility
 module.exports.default = module.exports;
