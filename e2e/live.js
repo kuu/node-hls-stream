@@ -9,7 +9,7 @@ module.exports = function () {
       // Choose an appropriate variant
       console.log(`${variants.length} variants available:`);
       for (const [index, variant] of variants.entries()) {
-        console.log(`\tvariant[${index}] : ${variant.bandwidth} bps, ${variant.uri.href}`);
+        console.log(`\tvariant[${index}] : ${variant.bandwidth} bps, ${variant.uri}`);
       }
       // If not specified, the first (index=0) variant will be used.
       cb(0);

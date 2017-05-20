@@ -1,4 +1,4 @@
-const HLS = require('@kuu/hls-parser');
+const HLS = require('hls-parser');
 
 const ReadStream = require('./readable');
 const WriteStream = require('./writable');

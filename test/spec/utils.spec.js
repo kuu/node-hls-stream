@@ -71,3 +71,12 @@ test('utils.tryCatch', t => {
     );
   });
 });
+
+test('utils.createUrl', t => {
+  let url = utils.createUrl('http://abc.com');
+  t.is(url.href, 'http://abc.com/');
+  url = utils.createUrl('http://abc.com', 'http://def.com');
+  t.is(url.href, 'http://abc.com/');
+  url = utils.createUrl('/abc', 'http://def.com');
+  t.is(url.href, 'http://def.com/abc');
+});

@@ -2,7 +2,7 @@ const stream = require('stream');
 const crypto = require('crypto');
 const debug = require('debug');
 const Loader = require('@kuu/parallel-fetch');
-const HLS = require('@kuu/hls-parser');
+const HLS = require('hls-parser');
 const utils = require('./utils');
 
 const print = debug('hls-stream');
@@ -39,6 +39,10 @@ class ReadStream extends stream.Readable {
     this.counter = 0;
   }
 
+  _url(url) {
+    return utils.createUrl(url, this.url).href;
+  }
+
   _INCREMENT() {
     this.counter++;
   }
@@ -57,11 +61,12 @@ class ReadStream extends stream.Readable {
       return false;
     }
     for (const playlist of mediaPlaylists) {
+      const waitSeconds = playlist.targetDuration * 1.5;
       if (playlist.playlistType !== 'VOD' && playlist.hash === hash) {
-        print(`No update. Wait for a period of one-half the target duration before retrying (${playlist.targetDuration * 1.5}) sec`);
+        print(`No update. Wait for a period of one-half the target duration before retrying (${waitSeconds}) sec`);
         setTimeout(() => {
           this._loadPlaylist(url);
-        }, playlist.targetDuration * 1.5 * 1000);
+        }, waitSeconds * 1000);
         return true;
       }
     }
@@ -87,7 +92,7 @@ class ReadStream extends stream.Readable {
     });
     playlist.currentVariant = currentVariant;
     const variant = variants[currentVariant];
-    this._loadPlaylist(variant.uri.href);
+    this._loadPlaylist(this._url(variant.uri));
     this._updateRendition(variant);
   }
 
@@ -103,7 +108,7 @@ class ReadStream extends stream.Readable {
         variant.currentRenditions[type] = currentRendition;
         const url = renditions[currentRendition].uri;
         if (url) {
-          this._loadPlaylist(url.href);
+          this._loadPlaylist(this._url(url));
         }
       }
     });
@@ -112,7 +117,7 @@ class ReadStream extends stream.Readable {
   _updateMediaPlaylist(playlist) {
     const mediaPlaylists = this.mediaPlaylists;
     const oldPlaylistIndex = mediaPlaylists.findIndex(elem => {
-      if (elem.uri.href === playlist.uri.href) {
+      if (elem.uri === playlist.uri) {
         return true;
       }
       return false;
@@ -123,7 +128,7 @@ class ReadStream extends stream.Readable {
     for (const segment of newSegments) {
       if (oldPlaylist) {
         const oldSegment = oldPlaylist.segments.find(elem => {
-          if (elem.uri.href === segment.uri.href) {
+          if (elem.uri === segment.uri) {
             return true;
           }
           return false;
@@ -151,7 +156,7 @@ class ReadStream extends stream.Readable {
     } else {
       print(`Wait for at least the target duration before attempting to reload the Playlist file again (${playlist.targetDuration}) sec`);
       setTimeout(() => {
-        this._loadPlaylist(playlist.uri.href);
+        this._loadPlaylist(this._url(playlist.uri));
       }, playlist.targetDuration * 1000);
     }
   }
@@ -165,8 +170,10 @@ class ReadStream extends stream.Readable {
         return;
       }
     }
-    if (playlist.sessionKey && !playlist.sessionKey.data) {
-      return;
+    for (const sessionKey of playlist.sessionKeyList) {
+      if (!sessionKey.data) {
+        return;
+      }
     }
     this._emit('data', playlist);
   }
@@ -183,7 +190,7 @@ class ReadStream extends stream.Readable {
         // The file is not changed
         return;
       }
-      const playlist = HLS.parse(result.data, url);
+      const playlist = HLS.parse(result.data);
       playlist.source = result.data;
       if (playlist.isMasterPlaylist) {
         // Master Playlist
@@ -194,8 +201,8 @@ class ReadStream extends stream.Readable {
             this._emitPlaylistEvent(playlist);
           });
         }
-        if (playlist.sessionKey) {
-          this._loadKey(playlist.sessionKey, () => {
+        if (playlist.sessionKeyList.length > 0) {
+          this._loadSessionKey(playlist.sessionKeyList, () => {
             this._emitPlaylistEvent(playlist);
           });
         }
@@ -225,7 +232,7 @@ class ReadStream extends stream.Readable {
 
   _loadSegment(segment) {
     this._INCREMENT();
-    this.loader.load(segment.uri.href, {readAsBuffer: true}, (err, result) => {
+    this.loader.load(this._url(segment.uri), {readAsBuffer: true}, (err, result) => {
       this._DECREMENT();
       if (err) {
         return this._emit('error', err);
@@ -252,7 +259,7 @@ class ReadStream extends stream.Readable {
         continue;
       }
       this._INCREMENT();
-      this.loader.load(sessionData.uri.href, (err, result) => {
+      this.loader.load(this._url(sessionData.uri), (err, result) => {
         this._DECREMENT();
         if (err) {
           return this._emit('error', err);
@@ -270,9 +277,15 @@ class ReadStream extends stream.Readable {
     }
   }
 
+  _loadSessionKey(list, cb) {
+    for (const key of list) {
+      this._loadKey(key, cb);
+    }
+  }
+
   _loadKey(key, cb) {
     this._INCREMENT();
-    this.loader.load(key.uri.href, {readAsBuffer: true}, (err, result) => {
+    this.loader.load(this._url(key.uri), {readAsBuffer: true}, (err, result) => {
       this._DECREMENT();
       if (err) {
         return this._emit('error', err);
@@ -284,7 +297,7 @@ class ReadStream extends stream.Readable {
 
   _loadMap(map, cb) {
     this._INCREMENT();
-    this.loader.load(map.uri.href, {readAsBuffer: true}, (err, result) => {
+    this.loader.load(this._url(map.uri), {readAsBuffer: true}, (err, result) => {
       this._DECREMENT();
       if (err) {
         return this._emit('error', err);

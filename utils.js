@@ -1,3 +1,5 @@
+const URL = require('url').URL;
+
 function THROW(err) {
   throw err;
 }
@@ -39,10 +41,22 @@ function tryCatch(body, errorHandler) {
   }
 }
 
+function createUrl(url, base) {
+  return tryCatch(
+    () => {
+      return new URL(url);
+    },
+    () => {
+      return new URL(url, base);
+    }
+  );
+}
+
 module.exports = {
   THROW,
   ASSERT: process.env.NODE_ENV === 'production' ? _empty : ASSERT,
   PARAMCHECK: process.env.NODE_ENV === 'production' ? _empty : PARAMCHECK,
   CONDITIONALPARAMCHECK: process.env.NODE_ENV === 'production' ? _empty : CONDITIONALPARAMCHECK,
-  tryCatch
+  tryCatch,
+  createUrl
 };
