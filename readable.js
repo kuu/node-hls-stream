@@ -28,6 +28,10 @@ function trimData(data, byterange) {
   return data;
 }
 
+function getUrl(url, base) {
+  return utils.createUrl(url, base).href;
+}
+
 class ReadStream extends stream.Readable {
   constructor(url, options) {
     super({objectMode: true});
@@ -37,10 +41,6 @@ class ReadStream extends stream.Readable {
     this.masterPlaylist = null;
     this.mediaPlaylists = [];
     this.counter = 0;
-  }
-
-  _url(url) {
-    return utils.createUrl(url, this.url).href;
   }
 
   _INCREMENT() {
@@ -92,11 +92,11 @@ class ReadStream extends stream.Readable {
     });
     playlist.currentVariant = currentVariant;
     const variant = variants[currentVariant];
-    this._loadPlaylist(this._url(variant.uri));
-    this._updateRendition(variant);
+    this._loadPlaylist(getUrl(variant.uri, playlist.uri));
+    this._updateRendition(playlist, variant);
   }
 
-  _updateRendition(variant) {
+  _updateRendition(playlist, variant) {
     ['audio', 'video', 'subtitles', 'closedCaptions'].forEach(type => {
       const renditions = variant[type];
       let currentRendition = 0;
@@ -108,7 +108,7 @@ class ReadStream extends stream.Readable {
         variant.currentRenditions[type] = currentRendition;
         const url = renditions[currentRendition].uri;
         if (url) {
-          this._loadPlaylist(this._url(url));
+          this._loadPlaylist(getUrl(url, playlist.uri));
         }
       }
     });
@@ -138,10 +138,10 @@ class ReadStream extends stream.Readable {
           segment.key = oldSegment.key;
           segment.map = oldSegment.map;
         } else {
-          this._loadSegment(segment);
+          this._loadSegment(playlist, segment);
         }
       } else {
-        this._loadSegment(segment);
+        this._loadSegment(playlist, segment);
       }
     }
 
@@ -156,7 +156,7 @@ class ReadStream extends stream.Readable {
     } else {
       print(`Wait for at least the target duration before attempting to reload the Playlist file again (${playlist.targetDuration}) sec`);
       setTimeout(() => {
-        this._loadPlaylist(this._url(playlist.uri));
+        this._loadPlaylist(playlist.uri);
       }, playlist.targetDuration * 1000);
     }
   }
@@ -192,17 +192,18 @@ class ReadStream extends stream.Readable {
       }
       const playlist = HLS.parse(result.data);
       playlist.source = result.data;
+      playlist.uri = url;
       if (playlist.isMasterPlaylist) {
         // Master Playlist
         this.state = STATE_MASTER_PLAYLIST_PARSED;
         this._emitPlaylistEvent(playlist);
         if (playlist.sessionDataList.length > 0) {
-          this._loadSessionData(playlist.sessionDataList, () => {
+          this._loadSessionData(playlist, () => {
             this._emitPlaylistEvent(playlist);
           });
         }
         if (playlist.sessionKeyList.length > 0) {
-          this._loadSessionKey(playlist.sessionKeyList, () => {
+          this._loadSessionKey(playlist, () => {
             this._emitPlaylistEvent(playlist);
           });
         }
@@ -230,9 +231,9 @@ class ReadStream extends stream.Readable {
     this._emit('data', segment);
   }
 
-  _loadSegment(segment) {
+  _loadSegment(playlist, segment) {
     this._INCREMENT();
-    this.loader.load(this._url(segment.uri), {readAsBuffer: true}, (err, result) => {
+    this.loader.load(getUrl(segment.uri, playlist.uri), {readAsBuffer: true}, (err, result) => {
       this._DECREMENT();
       if (err) {
         return this._emit('error', err);
@@ -242,24 +243,25 @@ class ReadStream extends stream.Readable {
       this._emitDataEvent(segment);
     });
     if (segment.key) {
-      this._loadKey(segment.key, () => {
+      this._loadKey(playlist, segment.key, () => {
         this._emitDataEvent(segment);
       });
     }
     if (segment.map) {
-      this._loadMap(segment.map, () => {
+      this._loadMap(playlist, segment.map, () => {
         this._emitDataEvent(segment);
       });
     }
   }
 
-  _loadSessionData(list, cb) {
+  _loadSessionData(playlist, cb) {
+    const list = playlist.sessionDataList;
     for (const sessionData of list) {
       if (sessionData.value || !sessionData.url) {
         continue;
       }
       this._INCREMENT();
-      this.loader.load(this._url(sessionData.uri), (err, result) => {
+      this.loader.load(getUrl(sessionData.uri, playlist.uri), (err, result) => {
         this._DECREMENT();
         if (err) {
           return this._emit('error', err);
@@ -277,15 +279,16 @@ class ReadStream extends stream.Readable {
     }
   }
 
-  _loadSessionKey(list, cb) {
+  _loadSessionKey(playlist, cb) {
+    const list = playlist.sessionKeyList;
     for (const key of list) {
-      this._loadKey(key, cb);
+      this._loadKey(playlist, key, cb);
     }
   }
 
-  _loadKey(key, cb) {
+  _loadKey(playlist, key, cb) {
     this._INCREMENT();
-    this.loader.load(this._url(key.uri), {readAsBuffer: true}, (err, result) => {
+    this.loader.load(getUrl(key.uri, playlist.uri), {readAsBuffer: true}, (err, result) => {
       this._DECREMENT();
       if (err) {
         return this._emit('error', err);
@@ -295,9 +298,9 @@ class ReadStream extends stream.Readable {
     });
   }
 
-  _loadMap(map, cb) {
+  _loadMap(playlist, map, cb) {
     this._INCREMENT();
-    this.loader.load(this._url(map.uri), {readAsBuffer: true}, (err, result) => {
+    this.loader.load(getUrl(map.uri, playlist.uri), {readAsBuffer: true}, (err, result) => {
       this._DECREMENT();
       if (err) {
         return this._emit('error', err);
