@@ -7,7 +7,7 @@
     "lint": "xo",
     "e2e": "node ./e2e",
     "coverage": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
-    "test": "npm run lint && nsp check && ava --verbose"
+    "test": "npm run lint && npm audit --audit-level high && ava --verbose"
   },
   "repository": {
     "type": "git",
@@ -34,25 +34,29 @@
     "rules": {
       "capitalized-comments": 0,
       "dot-notation": 0,
+      "indent": 0,
       "new-cap": 0,
       "no-cond-assign": 0,
       "no-multi-assign": 0,
-      "import/no-dynamic-require": 0
+      "padding-line-between-statements": 0,
+      "import/no-dynamic-require": 0,
+      "unicorn/catch-error-name": 0,
+      "unicorn/filename-case": 0
     }
   },
   "devDependencies": {
-    "ava": "^0.19.1",
-    "coveralls": "^2.13.0",
+    "ava": "^2.0.0",
+    "coveralls": "^3.0.3",
     "minimist": "^1.2.0",
-    "nsp": "^2.6.3",
-    "nyc": "^10.2.0",
-    "proxyquire": "^1.7.11",
-    "sinon": "^2.1.0",
-    "xo": "^0.18.1"
+    "nyc": "^14.1.1",
+    "proxyquire": "^2.1.0",
+    "sinon": "^7.3.2",
+    "xo": "^0.24.0"
   },
   "dependencies": {
-    "@kuu/parallel-fetch": "0.0.2",
-    "debug": "^2.6.3",
-    "hls-parser": "^0.1.4"
+    "debug": "^4.1.1",
+    "hls-parser": "^0.3.0",
+    "node-fetch": "^2.6.0",
+    "through2-parallel": "^0.1.3"
   }
 }

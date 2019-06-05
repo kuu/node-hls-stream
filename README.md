@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/kuu/node-hls-stream.svg?branch=master)](https://travis-ci.org/kuu/node-hls-stream)
 [![Coverage Status](https://coveralls.io/repos/github/kuu/node-hls-stream/badge.svg?branch=master)](https://coveralls.io/github/kuu/node-hls-stream?branch=master)
-[![Dependency Status](https://gemnasium.com/badges/github.com/kuu/node-hls-stream.svg)](https://gemnasium.com/github.com/kuu/node-hls-stream)
+[![Dependency Status](https://david-dm.org/kuu/node-hls-stream.svg)](https://david-dm.org/kuu/node-hls-stream)
+[![Development Dependency Status](https://david-dm.org/kuu/node-hls-stream/dev-status.svg)](https://david-dm.org/kuu/node-hls-stream#info=devDependencies)
 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 
 # node-hls-stream

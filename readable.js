@@ -1,8 +1,8 @@
 const stream = require('stream');
 const crypto = require('crypto');
 const debug = require('debug');
-const Loader = require('@kuu/parallel-fetch');
 const HLS = require('hls-parser');
+const Loader = require('./fetch');
 const utils = require('./utils');
 
 const print = debug('hls-stream');
@@ -56,7 +56,7 @@ class ReadStream extends stream.Readable {
   }
 
   _deferIfUnchanged(url, hash) {
-    const mediaPlaylists = this.mediaPlaylists;
+    const {mediaPlaylists} = this;
     if (mediaPlaylists.length === 0) {
       return false;
     }
@@ -84,7 +84,7 @@ class ReadStream extends stream.Readable {
       utils.THROW(new Error('the stream has already been exhausted'));
     }
     const playlist = this.masterPlaylist;
-    const variants = playlist.variants;
+    const {variants} = playlist;
     let currentVariant = 0;
     this._emit('variants', variants, index => {
       // Get feedback from the client synchronously
@@ -115,7 +115,7 @@ class ReadStream extends stream.Readable {
   }
 
   _updateMediaPlaylist(playlist) {
-    const mediaPlaylists = this.mediaPlaylists;
+    const {mediaPlaylists} = this;
     const oldPlaylistIndex = mediaPlaylists.findIndex(elem => {
       if (elem.uri === playlist.uri) {
         return true;
