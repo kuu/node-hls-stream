@@ -1,4 +1,4 @@
-const URL = require('url').URL;
+const {URL} = require('url');
 
 function THROW(err) {
   throw err;

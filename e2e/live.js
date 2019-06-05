@@ -1,4 +1,4 @@
-const {createReadStream} = require('../');
+const {createReadStream} = require('..');
 
 module.exports = function () {
   return new Promise((resolve, reject) => {
@@ -28,9 +28,9 @@ module.exports = function () {
         const playlist = data;
         console.log('===');
         if (playlist.isMasterPlaylist) {
-          console.log(`Master playlist available`);
+          console.log('Master playlist available');
         } else {
-          console.log(`Media playlist available:`);
+          console.log('Media playlist available:');
           console.log(`\tisIFrame = ${playlist.isIFrame}`);
           console.log(`\ttype = ${playlist.playlistType}`);
           console.log(`\tendlist = ${playlist.endlist}`);
