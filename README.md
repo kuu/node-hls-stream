@@ -4,7 +4,7 @@
 [![Development Dependency Status](https://david-dm.org/kuu/node-hls-stream/dev-status.svg)](https://david-dm.org/kuu/node-hls-stream#info=devDependencies)
 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 
-# node-hls-stream
+# hls-stream
 
 A readable/writable stream that can be used for manipulating a live/VOD HLS stream
 
@@ -21,7 +21,7 @@ A readable/writable stream that can be used for manipulating a live/VOD HLS stre
 ## Usage
 ### Readable stream
 ```js
-const {createReadStream} = require('node-hls-stream');
+const {createReadStream} = require('hls-stream');
 // Create a readable stream from a URL
 const stream = createReadStream('https://foo.com/bar.m3u8', {concurrency: 7});
 
@@ -75,7 +75,7 @@ stream.updateVariant();
 ```
 ### Writable stream
 ```js
-const {createWriteStream, types: {MediaPlaylist}} = require('node-hls-stream');
+const {createWriteStream, types: {MediaPlaylist}} = require('hls-stream');
 // Create a writable stream from a filepath
 const stream = createWriteStream('./sample.m3u8');
 
