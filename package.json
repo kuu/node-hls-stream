@@ -1,6 +1,6 @@
 {
   "name": "node-hls-stream",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A readable stream that can be used for extracting a particular variant/rendition from a live/VOD HLS stream",
   "main": "./index.js",
   "scripts": {
