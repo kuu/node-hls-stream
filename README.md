@@ -9,9 +9,9 @@
 A readable/writable stream that can be used for manipulating a live/VOD HLS stream
 
 ## Features
-* Provides a readable stream that can be used for extracting a particular variant/rendition from a running live/VOD HLS stream
+* Provides a readable stream that can be used for extracting particular variants/renditions from a running live/VOD HLS stream
   * Downloads and parses HLS playlist and segment files based on [the spec](https://tools.ietf.org/html/draft-pantos-http-live-streaming-21).
-  * Enables clients to choose a specific variant with specific rendition(s) to download.
+  * Enables clients to choose specific variant(s) with specific rendition(s) to download.
   * Provides parsed playlists and segments as structured JS objects.
 * Provides a writable stream that can be used for generating HLS playlist/segment files in realtime
   * Enables clients to describe playlists/segments as JS objects.
@@ -26,26 +26,29 @@ const {createReadStream} = require('node-hls-stream');
 const stream = createReadStream('https://foo.com/bar.m3u8', {concurrency: 7});
 
 stream.on('variants', (variants, cb) => {
-  // Choose an appropriate variant
+  // Choose variants
+  const variantsToLoad = [];
   for (let [index, variant] of variants.entries()) {
     if (variant.bandwidth >= MIN_BITRATE) {
-      return cb(index);
+      variantsToLoad.push(index);
     }
   }
-  // If not specified, the first (index=0) variant will be used.
+  return cb(variantsToLoad);
+  // If not specified, all the variants will be loaded.
 })
 .on('renditions', (renditions, cb) => {
-  // Choose an appropriate rendition
+  // Choose renditions
+  const renditionsToLoad = [];
   for (let [index, rendition] of renditions.entries()) {
-    if (rendition.type === 'AUDIO' && rendition.language === 'ja') {
-      return cb(index);
+    if (rendition.type === 'AUDIO') {
+      renditionsToLoad.push(index);
     }
   }
-  // If not specified, the default rendition will be used.
-  // If there's no default rendition, the first (index=0) rendition will be used.
+  return cb(renditionsToLoad);
+  // If not specified, all the renditions will be loaded.
 })
 .on('data', data => {
-  // The stream chosen above will be delivered here
+  // The streams chosen above will be delivered here
   if (data.type === 'playlist') {
     const playlist = data;
     if (playlist.isMasterPlaylist) {
@@ -67,8 +70,8 @@ stream.on('variants', (variants, cb) => {
   console.error(err.stack);
 });
 
-// To switch to another stream:
-stream.updateVariant(); // 'variants' and 'renditions' events will be emitted again.
+// To emit 'variants' and 'renditions' events again
+stream.updateVariant();
 ```
 ### Writable stream
 ```js
@@ -105,19 +108,19 @@ An instance of `ReadStream`.
 A subclass of [stream.Readable](https://nodejs.org/api/stream.html#stream_readable_streams) with additional events and methods as follows.
 #### events
 ##### `'variants'`
-`variants` event is emitted to let clients specify which variant to be downloaded. The event listener is called with the following arguments:
+`variants` event is emitted to let clients specify which variants to be loaded. The event listener is called with the following arguments:
 
 | Name     | Type       | Description                                       |
 | -------- | ---------- | ------------------------------------------------- |
 | variants | [`Variant`]    | A list of available variants                |
-| cb       | `function` | A callback function to be called by the client to specify the variant's index within the array.  |
+| cb       | `function` | A callback function used by the client to specify which variants to be loaded. `cb` takes a single argument of type `Array` which contains the index within `variants`.  |
 ##### `'renditions'`
-`renditions` event is emitted to let clients specify which rendition to be downloaded. The event listener is called with the following arguments:
+`renditions` event is emitted to let clients specify which renditions to be loaded. The event listener is called with the following arguments:
 
 | Name       | Type       | Description                                       |
 | ---------- | ---------- | ------------------------------------------------- |
 | renditions | [`Rendition`]    | A list of available renditions              |
-| cb         | `function` | A callback function to be called by the client to specify the rendition's index within the array.  |
+| cb         | `function` | A callback function used by the client to specify which renditions to be loaded. `cb` takes a single argument of type `Array` which contains the index within `renditions`. |
 ##### `'data'`
 `data` event is emitted when a playlist or segment is available. The event listener is called with the following arguments:
 
@@ -126,4 +129,4 @@ A subclass of [stream.Readable](https://nodejs.org/api/stream.html#stream_readab
 | data | `Data` | An instance of either of `Segment`, `MasterPlaylist` or `MediaPlaylist` |
 #### methods
 ##### `updateVariant()`
-Emits `variants`/`renditions` events again so that the client can choose another variant/rendition. The method takes no params and returns no value.
+Emits `variants`/`renditions` events again so that the client can choose other variants/renditions. The method takes no params and returns no value.

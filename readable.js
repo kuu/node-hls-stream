@@ -7,12 +7,6 @@ const utils = require('./utils');
 
 const print = debug('hls-stream');
 
-const STATE_NO_PLAYLIST = 'no-playlist';
-const STATE_PLAYLIST_RETRIEVING = 'no-playlist';
-const STATE_MASTER_PLAYLIST_PARSED = 'master-playlist-parsed';
-const STATE_MEDIA_PLAYLIST_PARSED = 'media-playlist-parsed';
-const STATE_NO_MORE_DATA = 'no-more-data';
-
 function digest(str) {
   const md5 = crypto.createHash('md5');
   md5.update(str, 'utf8');
@@ -36,7 +30,7 @@ class ReadStream extends stream.Readable {
   constructor(url, options) {
     super({objectMode: true});
     this.loader = new Loader(options);
-    this.state = STATE_NO_PLAYLIST;
+    this.started = false;
     this.url = url;
     this.masterPlaylist = null;
     this.mediaPlaylists = [];
@@ -51,8 +45,8 @@ class ReadStream extends stream.Readable {
     this.counter--;
   }
 
-  get exhausted() {
-    return this.state === STATE_NO_MORE_DATA && this.counter === 0;
+  get inactive() {
+    return !this.started && this.counter === 0;
   }
 
   _deferIfUnchanged(url, hash) {
@@ -80,35 +74,37 @@ class ReadStream extends stream.Readable {
   }
 
   updateVariant() {
-    if (this.exhausted) {
-      utils.THROW(new Error('the stream has already been exhausted'));
+    if (this.inactive) {
+      utils.THROW(new Error('the stream is inactive'));
     }
     const playlist = this.masterPlaylist;
     const {variants} = playlist;
-    let currentVariant = 0;
-    this._emit('variants', variants, index => {
+    let variantsToLoad = null;
+    this._emit('variants', variants, indices => {
       // Get feedback from the client synchronously
-      currentVariant = index;
+      variantsToLoad = indices;
     });
-    playlist.currentVariant = currentVariant;
-    const variant = variants[currentVariant];
-    this._loadPlaylist(getUrl(variant.uri, playlist.uri));
-    this._updateRendition(playlist, variant);
+    for (const index of variantsToLoad) {
+      const variant = variants[index];
+      this._loadPlaylist(getUrl(variant.uri, playlist.uri));
+      this._updateRendition(playlist, variant);
+    }
   }
 
   _updateRendition(playlist, variant) {
     ['audio', 'video', 'subtitles', 'closedCaptions'].forEach(type => {
       const renditions = variant[type];
-      let currentRendition = 0;
       if (renditions.length > 0) {
-        this._emit('renditions', renditions, index => {
+        let renditionsToLoad = null;
+        this._emit('renditions', renditions, indices => {
           // Get feedback from the client synchronously
-          currentRendition = index;
+          renditionsToLoad = indices;
         });
-        variant.currentRenditions[type] = currentRendition;
-        const url = renditions[currentRendition].uri;
-        if (url) {
-          this._loadPlaylist(getUrl(url, playlist.uri));
+        for (const index of renditionsToLoad) {
+          const url = renditions[index].uri;
+          if (url) {
+            this._loadPlaylist(getUrl(url, playlist.uri));
+          }
         }
       }
     });
@@ -152,7 +148,7 @@ class ReadStream extends stream.Readable {
     }
 
     if (playlist.playlistType === 'VOD' || playlist.endlist) {
-      this.state = STATE_NO_MORE_DATA;
+      this.started = false;
     } else {
       print(`Wait for at least the target duration before attempting to reload the Playlist file again (${playlist.targetDuration}) sec`);
       setTimeout(() => {
@@ -195,7 +191,6 @@ class ReadStream extends stream.Readable {
       playlist.uri = url;
       if (playlist.isMasterPlaylist) {
         // Master Playlist
-        this.state = STATE_MASTER_PLAYLIST_PARSED;
         this._emitPlaylistEvent(playlist);
         if (playlist.sessionDataList.length > 0) {
           this._loadSessionData(playlist, () => {
@@ -210,7 +205,6 @@ class ReadStream extends stream.Readable {
         this._updateMasterPlaylist(playlist);
       } else {
         // Media Playlist
-        this.state = STATE_MEDIA_PLAYLIST_PARSED;
         playlist.hash = hash;
         this._emitPlaylistEvent(playlist);
         this._updateMediaPlaylist(playlist);
@@ -317,17 +311,17 @@ class ReadStream extends stream.Readable {
     } else {
       this.emit(...params);
     }
-    if (this.state === STATE_NO_MORE_DATA && this.counter === 0) {
+    if (this.inactive) {
       this.push(null);
       this.masterPlaylist = null;
-      this.mediaPlaylists = null;
+      this.mediaPlaylists = [];
     }
   }
 
   _read() {
-    if (this.state === STATE_NO_PLAYLIST) {
+    if (this.inactive) {
+      this.started = true;
       this._loadPlaylist(this.url);
-      this.state = STATE_PLAYLIST_RETRIEVING;
     }
   }
 }

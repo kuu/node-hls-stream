@@ -3,27 +3,30 @@ const {createReadStream} = require('..');
 module.exports = function () {
   return new Promise((resolve, reject) => {
     const stream = createReadStream('https://nhkworld.webcdn.stream.ne.jp/www11/nhkworld-tv/domestic/263942/live_wa_s.m3u8', {concurrency: 7});
-    let counter = 0;
+    // let counter = 0;
 
     stream.on('variants', (variants, cb) => {
-      // Choose an appropriate variant
+      // Choose variants
+      const variantsToLoad = [];
       console.log(`${variants.length} variants available:`);
       for (const [index, variant] of variants.entries()) {
         console.log(`\tvariant[${index}] : ${variant.bandwidth} bps, ${variant.uri}`);
+        variantsToLoad.push(index);
       }
-      // If not specified, the first (index=0) variant will be used.
-      cb(0);
+      cb(variantsToLoad);
     })
     .on('renditions', (renditions, cb) => {
+      // Choose renditions
+      const renditionsToLoad = [];
       console.log(`${renditions.length} renditions available:`);
       for (const [index, rendition] of renditions.entries()) {
         console.log(`\trendition[${index}] : type = ${rendition.type}, name = ${rendition.name}, isDefault = ${rendition.isDefault}`);
+        renditionsToLoad.push(index);
       }
-      // If not specified, the default rendition will be used.
-      // If there's no default rendition, the first (index=0) rendition will be used.
-      cb(0);
+      cb(renditionsToLoad);
     })
-    .on('data', function onData(data) {
+    // .on('data', function onData(data) {
+    .on('data', data => {
       if (data.type === 'playlist') {
         const playlist = data;
         console.log('===');
@@ -41,6 +44,7 @@ module.exports = function () {
       } else if (data.type === 'segment') {
         const segment = data;
         console.log(`#${segment.mediaSequenceNumber}: duration = ${segment.duration}, type = ${segment.mimeType}, byte length = ${segment.data.length}, key = ${segment.key}`);
+        /*
         if (counter++ === 12) {
           stream.removeListener('data', onData);
           stream.pause();
@@ -51,6 +55,7 @@ module.exports = function () {
             console.log('\t!!!stream.resume()');
           }, 20000);
         }
+        */
       }
     })
     .on('end', () => {

@@ -9,22 +9,26 @@ module.exports = function () {
     // const stream = createReadStream('http://player.ooyala.com/player/all/44YTc5NjE6pHaw1F7e46rrYN839jI0BB.m3u8?secure_ios_token=TG51d1IxUzc5ZnNmQ21ZSUlqTUorQXVFZmVpWWpnbURiN3hMK1N1V2gwNlB1WVlVa0oyOVRKRWwvTHZ5CkxuTGk3TDFob3ZmVnhBZ1pSU21FWmgrRzFnPT0K');
 
     stream.on('variants', (variants, cb) => {
-      // Choose an appropriate variant
+      // Choose variants
+      const variantsToLoad = [];
       console.log(`${variants.length} variants available:`);
       for (const [index, variant] of variants.entries()) {
         console.log(`\tvariant[${index}] : ${variant.bandwidth} bps, ${variant.uri}`);
+        variantsToLoad.push(index);
       }
-      // If not specified, the first (index=0) variant will be used.
-      cb(0);
+      cb(variantsToLoad);
     })
     .on('renditions', (renditions, cb) => {
+      // Choose renditions
+      const renditionsToLoad = [];
       console.log(`${renditions.length} renditions available:`);
       for (const [index, rendition] of renditions.entries()) {
         console.log(`\trendition[${index}] : type = ${rendition.type}, name = ${rendition.name}, isDefault = ${rendition.isDefault}`);
+        renditionsToLoad.push(index);
       }
       // If not specified, the default rendition will be used.
       // If there's no default rendition, the first (index=0) rendition will be used.
-      cb(0);
+      cb(renditionsToLoad);
     })
     .on('data', data => {
       if (data.type === 'playlist') {
