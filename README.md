@@ -73,7 +73,7 @@ stream.on('variants', (variants, cb) => {
 // To emit 'variants' and 'renditions' events again
 stream.updateVariant();
 ```
-### Writable stream
+### Writable stream (still under development...)
 ```js
 const {createWriteStream, types: {MediaPlaylist}} = require('hls-stream');
 // Create a writable stream from a filepath
