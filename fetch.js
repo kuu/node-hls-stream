@@ -9,6 +9,7 @@ const print = debug('parallel-fetch');
 class Loader {
   constructor(options = {}) {
     const concurrency = options.concurrency || 6;
+    const rawResponse = Boolean(options.rawResponse);
     this.cache = new Cache();
     this.waitlist = new Set();
     this.stream = through.obj({concurrency}, ({url, options}, enc, cb) => {
@@ -19,8 +20,12 @@ class Loader {
           utils.THROW(new Error(`${res.status} ${res.statusText}`));
         }
         if (options.readAsBuffer) {
+          const mimeType = res.headers ? res.headers.get('Content-Type') : null;
+          if (rawResponse) {
+            return {data: res.body, mimeType};
+          }
           return res.buffer().then(data => {
-            return {data, mimeType: res.headers ? res.headers.get('Content-Type') : null};
+            return {data, mimeType};
           });
         }
         return res.text().then(data => {

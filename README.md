@@ -101,6 +101,7 @@ Creates a new `ReadStream` object.
 | Name        | Type   | Default | Description                       |
 | ----------- | ------ | ------- | --------------------------------- |
 | concurrency | number | 6       | Max number of requests concurrently processed |
+| rawResponse | boolean | false   | If true, Segment data is returned as a readable stream, default is as a Buffer |
 #### return value
 An instance of `ReadStream`.
 
