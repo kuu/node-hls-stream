@@ -35,6 +35,7 @@ class ReadStream extends stream.Readable {
     this.masterPlaylist = null;
     this.mediaPlaylists = [];
     this.counter = 0;
+    this.rawResponseMode = Boolean(options.rawResponse);
   }
 
   _INCREMENT() {
@@ -232,7 +233,11 @@ class ReadStream extends stream.Readable {
       if (err) {
         return this._emit('error', err);
       }
-      segment.data = trimData(result.data, segment.byterange);
+      if (this.rawResponseMode) {
+        segment.data = result.data;
+      } else {
+        segment.data = trimData(result.data, segment.byterange);
+      }
       segment.mimeType = result.mimeType;
       this._emitDataEvent(segment);
     });
@@ -299,7 +304,11 @@ class ReadStream extends stream.Readable {
       if (err) {
         return this._emit('error', err);
       }
-      map.data = trimData(result.data, map.byterange);
+      if (this.rawResponseMode) {
+        map.data = result.data;
+      } else {
+        map.data = trimData(result.data, map.byterange);
+      }
       map.mimeType = result.mimeType;
       cb();
     });
