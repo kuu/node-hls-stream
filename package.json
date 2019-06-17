@@ -45,8 +45,8 @@
     }
   },
   "devDependencies": {
-    "ava": "^2.0.0",
-    "coveralls": "^3.0.3",
+    "ava": "^2.1.0",
+    "coveralls": "^3.0.4",
     "minimist": "^1.2.0",
     "nyc": "^14.1.1",
     "proxyquire": "^2.1.0",
@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "debug": "^4.1.1",
-    "hls-parser": "^0.3.0",
+    "hls-parser": "^0.4.0",
     "node-fetch": "^2.6.0",
     "through2-parallel": "^0.1.3"
   }
