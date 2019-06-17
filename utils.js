@@ -33,11 +33,15 @@ function CONDITIONALPARAMCHECK(...params) {
 
 function _empty() {}
 
-function tryCatch(body, errorHandler) {
+function tryCatch(...params) {
+  const body = params.shift();
   try {
     return body();
   } catch (err) {
-    return errorHandler(err);
+    if (params.length > 0) {
+      return tryCatch(...params);
+    }
+    throw err;
   }
 }
 
@@ -48,6 +52,9 @@ function createUrl(url, base) {
     },
     () => {
       return new URL(url, base);
+    },
+    () => {
+      return {href: url};
     }
   );
 }

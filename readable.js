@@ -80,7 +80,7 @@ class ReadStream extends stream.Readable {
     }
     const playlist = this.masterPlaylist;
     const {variants} = playlist;
-    let variantsToLoad = null;
+    let variantsToLoad = [...new Array(variants.length).keys()];
     this._emit('variants', variants, indices => {
       // Get feedback from the client synchronously
       variantsToLoad = indices;
@@ -96,7 +96,7 @@ class ReadStream extends stream.Readable {
     ['audio', 'video', 'subtitles', 'closedCaptions'].forEach(type => {
       const renditions = variant[type];
       if (renditions.length > 0) {
-        let renditionsToLoad = null;
+        let renditionsToLoad = [...new Array(renditions.length).keys()];
         this._emit('renditions', renditions, indices => {
           // Get feedback from the client synchronously
           renditionsToLoad = indices;
