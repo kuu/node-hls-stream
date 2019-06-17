@@ -70,6 +70,18 @@ test('utils.tryCatch', t => {
       }
     );
   });
+  result = utils.tryCatch(
+    () => {
+      return JSON.parse('{{');
+    },
+    () => {
+      return JSON.parse('}}');
+    },
+    () => {
+      return 0;
+    }
+  );
+  t.is(result, 0);
 });
 
 test('utils.createUrl', t => {

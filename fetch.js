@@ -5,6 +5,7 @@ const utils = require('./utils');
 const Cache = require('./cache');
 
 const print = debug('parallel-fetch');
+const MAX_EVENT_LISTENERS = 50;
 
 class Loader {
   constructor(options = {}) {
@@ -42,6 +43,7 @@ class Loader {
         cb();
       });
     });
+    this.stream.setMaxListeners(MAX_EVENT_LISTENERS);
   }
 
   load(...args) {
@@ -68,20 +70,25 @@ class Loader {
       waitlist.add(url);
     }
 
-    stream.on('data', function onData(result) {
+    function onData(result) {
       if (result.url === url) {
         stream.removeListener('data', onData);
+        stream.removeListener('error', onError);
         waitlist.delete(url);
         cb(null, result.data);
       }
-    })
-    .on('error', function onError(result) {
+    }
+
+    function onError(result) {
       if (result.url === url) {
+        stream.removeListener('data', onData);
         stream.removeListener('error', onError);
         waitlist.delete(url);
         cb(result.err);
       }
-    });
+    }
+
+    stream.on('data', onData).on('error', onError);
   }
 }
 

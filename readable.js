@@ -30,7 +30,7 @@ class ReadStream extends stream.Readable {
   constructor(url, options) {
     super({objectMode: true});
     this.loader = new Loader(options);
-    this.started = false;
+    this.state = 'initialized';
     this.url = url;
     this.masterPlaylist = null;
     this.mediaPlaylists = [];
@@ -46,8 +46,8 @@ class ReadStream extends stream.Readable {
     this.counter--;
   }
 
-  get inactive() {
-    return !this.started && this.counter === 0;
+  get consumed() {
+    return this.state === 'ended' && this.counter === 0;
   }
 
   _deferIfUnchanged(url, hash) {
@@ -75,12 +75,12 @@ class ReadStream extends stream.Readable {
   }
 
   updateVariant() {
-    if (this.inactive) {
-      utils.THROW(new Error('the stream is inactive'));
+    if (this.state !== 'reading') {
+      utils.THROW(new Error('the state should be "reading"'));
     }
     const playlist = this.masterPlaylist;
     const {variants} = playlist;
-    let variantsToLoad = null;
+    let variantsToLoad = [...new Array(variants.length).keys()];
     this._emit('variants', variants, indices => {
       // Get feedback from the client synchronously
       variantsToLoad = indices;
@@ -96,7 +96,7 @@ class ReadStream extends stream.Readable {
     ['audio', 'video', 'subtitles', 'closedCaptions'].forEach(type => {
       const renditions = variant[type];
       if (renditions.length > 0) {
-        let renditionsToLoad = null;
+        let renditionsToLoad = [...new Array(renditions.length).keys()];
         this._emit('renditions', renditions, indices => {
           // Get feedback from the client synchronously
           renditionsToLoad = indices;
@@ -149,7 +149,7 @@ class ReadStream extends stream.Readable {
     }
 
     if (playlist.playlistType === 'VOD' || playlist.endlist) {
-      this.started = false;
+      this.state = 'ended';
     } else {
       print(`Wait for at least the target duration before attempting to reload the Playlist file again (${playlist.targetDuration}) sec`);
       setTimeout(() => {
@@ -320,7 +320,7 @@ class ReadStream extends stream.Readable {
     } else {
       this.emit(...params);
     }
-    if (this.inactive) {
+    if (this.consumed) {
       this.push(null);
       this.masterPlaylist = null;
       this.mediaPlaylists = [];
@@ -328,8 +328,8 @@ class ReadStream extends stream.Readable {
   }
 
   _read() {
-    if (this.inactive) {
-      this.started = true;
+    if (this.state === 'initialized') {
+      this.state = 'reading';
       this._loadPlaylist(this.url);
     }
   }
