@@ -3,11 +3,11 @@ const HLS = require('hls-parser');
 const ReadStream = require('./readable');
 const WriteStream = require('./writable');
 
-function createReadStream(url, options) {
+function createReadStream(url, options = {}) {
   return new ReadStream(url, options);
 }
 
-function createWriteStream(filePath, options) {
+function createWriteStream(filePath, options = {}) {
   return new WriteStream(filePath, options);
 }
 
